@@ -85,16 +85,16 @@ class PomdpGraph:
                 value.pos['x'] = x
                 value.pos['y'] = y
                 if x > 0:
-                    if self.get_state(x-1, y) is not None:
+                    if self.get_state(x-1, y).block is not True:
                         value.left_state = self.get_state(x-1, y)
                 if x < self.dimension['length']-1:
-                    if self.get_state(x+1, y) is not None:
+                    if self.get_state(x+1, y).block is not True:
                         value.right_state = self.get_state(x+1, y)
                 if y > 0:
-                    if self.get_state(x, y-1) is not None:
+                    if self.get_state(x, y-1).block is not True:
                         value.top_state = self.get_state(x, y-1)
                 if y < self.dimension['breadth']-1:
-                    if self.get_state(x, y+1) is not None:
+                    if self.get_state(x, y+1).block is not True:
                         value.bottom_state = self.get_state(x, y+1)
 
 

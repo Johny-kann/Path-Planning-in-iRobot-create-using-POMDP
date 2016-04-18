@@ -27,9 +27,11 @@ state = [ model.State(None, None, None, None) for i in range(0, 10) ]
 
 graph = model.PomdpGraph(5,4)
 
+graph.make_block(1,3)
+
 graph.re_graph()
 
-#graph.make_block(1,3)
+#
 
 # graph.get_state(1,1).block = True
 # graph.get_state(0,1).right_state = None
@@ -69,8 +71,8 @@ for y in range(0,graph.dimension['breadth']):
     print()
 
 
-graph.get_state(0, 0).belief *= 10
-graph.get_state(1,2).belief *= 5
+graph.get_state(0, 0).belief *= 100
+graph.get_state(1,2).belief *= 25
 
 graph.normalize()
 
