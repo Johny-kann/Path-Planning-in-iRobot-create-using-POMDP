@@ -1,6 +1,7 @@
 __author__ = 'Johny Kannan'
 
 import CreateRobot.myRobot as model
+import numpy as np
 
 
 state = [ model.State(None, None, None, None) for i in range(0, 10) ]
@@ -46,5 +47,18 @@ for states in graph.states:
     else:
         print(' Center ', states.pos)
 
+# vec = [1] * len(graph.states)
+# vec[3] *= 100
+x = 2; y = 2
 
-print([graph.states[x].utility for x in range(0, len(graph.states))])
+graph.states[4*y + x].belief *= 10
+
+
+graph.normalize()
+
+# for i in range(len(graph.states)):
+#     graph.states[i].belief *= vec[i]
+
+array = np.array([graph.states[i].belief for i in range(len(graph.states))]).reshape(graph.dimension['breadth'], graph.dimension['length'])
+
+print(array)

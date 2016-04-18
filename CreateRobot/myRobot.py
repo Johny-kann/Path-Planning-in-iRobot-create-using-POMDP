@@ -4,7 +4,7 @@ __author__ = 'Johny Kannan'
 class State:
 
     def __init__(self, left_state, right_state, top_state, bottom_state, x = None, y = None):
-        self.utility = 1.0
+        self.belief = 1.0
         self.policy = {'stay': 0, 'front': 1, 'left': 0, 'right': 0, 'back': 0}
         self.left_state = left_state
         self.right_state = right_state
@@ -36,11 +36,11 @@ class PomdpGraph:
         self.states[self.dimension['length']*y+x] = value
 
     def normalize(self):
-        vec = [self.states[i].utility for i in range(0, len(self.states))]
+        vec = [self.states[i].belief for i in range(0, len(self.states))]
         addition = sum(vec)
         vec[:] = [x/addition for x in vec]
         for i in range(0, len(self.states)):
-            self.states[i].utility = vec[i]
+            self.states[i].belief = round(vec[i],4)
 
     def insert(self, x, y, value):
         if x >= self.dimension['x'] or y >= self.dimension['y']:
