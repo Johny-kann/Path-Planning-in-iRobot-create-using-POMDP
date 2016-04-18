@@ -11,12 +11,18 @@ class State:
         self.top_state = top_state
         self.bottom_state = bottom_state
         self.pos = {'x': x, 'y': y}
+        self.block = False
+
 
     def set_nearby_states(self, left_state, right_state, top_state, bottom_state):
         self.left_state = left_state
         self.right_state = right_state
         self.top_state = top_state
         self.bottom_state = bottom_state
+
+    def set_block(self):
+        self.block = True
+        self.belief = 0.0
 
 
 class PomdpGraph:
@@ -34,6 +40,18 @@ class PomdpGraph:
 
     def set_state(self, x, y, value):
         self.states[self.dimension['length']*y+x] = value
+
+    def make_block(self, x, y):
+        self.get_state(x, y).set_block()
+
+        if x > 0:
+            self.get_state(x-1, y).right_state = None
+        if x < self.dimension['length']-1:
+            self.get_state(x+1, y).left_state = None
+        if y > 0:
+            self.get_state(x, y-1).bottom_state = None
+        if y < self.dimension['breadth']-1:
+            self.get_state(x, y+1).top_state = None
 
     def normalize(self):
         vec = [self.states[i].belief for i in range(0, len(self.states))]
@@ -67,13 +85,17 @@ class PomdpGraph:
                 value.pos['x'] = x
                 value.pos['y'] = y
                 if x > 0:
-                    value.left_state = self.get_state(x-1, y)
+                    if self.get_state(x-1, y) is not None:
+                        value.left_state = self.get_state(x-1, y)
                 if x < self.dimension['length']-1:
-                    value.right_state = self.get_state(x+1, y)
+                    if self.get_state(x+1, y) is not None:
+                        value.right_state = self.get_state(x+1, y)
                 if y > 0:
-                    value.top_state = self.get_state(x, y-1)
+                    if self.get_state(x, y-1) is not None:
+                        value.top_state = self.get_state(x, y-1)
                 if y < self.dimension['breadth']-1:
-                    value.bottom_state = self.get_state(x, y+1)
+                    if self.get_state(x, y+1) is not None:
+                        value.bottom_state = self.get_state(x, y+1)
 
 
 class Robot:
