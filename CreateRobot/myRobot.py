@@ -23,6 +23,7 @@ class State:
     def set_block(self):
         self.block = True
         self.belief = 0.0
+        self.set_nearby_states(None, None, None, None)
 
 
 class PomdpGraph:
@@ -58,7 +59,67 @@ class PomdpGraph:
         addition = sum(vec)
         vec[:] = [x/addition for x in vec]
         for i in range(0, len(self.states)):
-            self.states[i].belief = round(vec[i],4)
+            self.states[i].belief = round(vec[i], 4)
+
+    def __left_action_possible(self, state):
+        '''
+        Possibility to reach this state through by moving left P(S'|action = 'Front')
+        :param state:
+        :return:
+        '''
+        if state.block is False and state.right_state is not None:
+            return True
+        else:
+            return False
+
+    def __right_action_possible(self, state):
+        '''
+        Possibility to reach this state through by moving right P(S'|action = 'Right')
+        :param state:
+        :return:
+        '''
+        if state.block is False and state.left_state is not None:
+            return True
+        else:
+            return False
+
+    def __top_action_possible(self, state):
+        '''
+        Possibility to reach this state through by moving top P(S'|action = 'Top')
+        :param state:
+        :return:
+        '''
+        if state.block is False and state.bottom_state is not None:
+            return True
+        else:
+            return False
+
+    def __bottom_action_possible(self, state):
+        '''
+        Possibility to reach this state through by moving top P(S'|action = 'Bottom')
+        :param state:
+        :return:
+        '''
+        if state.block is False and state.top_state is not None:
+            return True
+        else:
+            return False
+
+    def update_beliefs(self, action):
+        '''
+        Updates the beliefs of the states based on the action given
+        :param action: is dictionary of sample {'Left':true,'Right':false, 'Up':false,'Down':false} in terms of the POMDP graph
+        '''
+        for i in range(0, len(self.states)):
+            if action['Left'] and self.__left_action_possible(self.states[i]):
+                self.states[i].belief += 100*self.states[i].right_state.belief
+            elif action['Right'] and self.__right_action_possible(self.states[i]):
+                self.states[i].belief += 100*self.states[i].left_state.belief
+            elif action['Up'] and self.__top_action_possible(self.states[i]):
+                self.states[i].belief += 100*self.states[i].bottom_state.belief
+            elif action['Down'] and self.__bottom_action_possible(self.states[i]):
+                self.states[i].belief += 100*self.states[i].top_state.belief
+
 
     def insert(self, x, y, value):
         if x >= self.dimension['x'] or y >= self.dimension['y']:
@@ -109,3 +170,4 @@ class Robot:
         self.vector = {'x': 1.0, 'y': 0.0}
         self.analog_sensor = dict()
         self.digit_sensor = dict()
+        self.direction = {'x': 1.0, 'y': 0.0}
