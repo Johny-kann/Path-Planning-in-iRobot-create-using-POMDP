@@ -8,7 +8,7 @@ import numpy as np
 state = [ model.State(None, None, None, None) for i in range(0, 10) ]
 
 
-graph = model.PomdpGraph(5,4)
+graph = model.PomdpGraph(5,5)
 
 graph.make_block(1,2)
 
@@ -43,15 +43,17 @@ funcs.print_graph_belief(graph)
 
 action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
 evidence = {'Left': 1.0,'Right': 0,'Up': 0,'Down': 0,'Center': 0.0}
-graph.update_beliefs(action)
-graph.update_evidence(evidence)
 
+graph.update_beliefs(action)
+#graph.normalize()
+graph.update_evidence(evidence)
 graph.normalize()
 funcs.print_graph_belief(graph)
 
 action = {'Left': False, 'Right': False, 'Up': False, 'Down': True}
 evidence = {'Left': 0,'Right': 0,'Up': 0,'Down': 1,'Center': 0}
 graph.update_beliefs(action)
+#graph.normalize()
 graph.update_evidence(evidence)
 graph.normalize()
 funcs.print_graph_belief(graph)
@@ -59,12 +61,16 @@ funcs.print_graph_belief(graph)
 action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
 evidence = {'Left': 0,'Right': 0,'Up': 0,'Down': 1,'Center': 0}
 graph.update_beliefs(action)
+#graph.normalize()
+graph.update_evidence(evidence)
 graph.normalize()
 funcs.print_graph_belief(graph)
 
 action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
 evidence = {'Left': 0,'Right': 0,'Up': 0,'Down': 1,'Center': 0}
 graph.update_beliefs(action)
+#graph.normalize()
+graph.update_evidence(evidence)
 graph.normalize()
 funcs.print_graph_belief(graph)
 

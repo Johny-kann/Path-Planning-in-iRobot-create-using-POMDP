@@ -59,7 +59,7 @@ class PomdpGraph:
         addition = sum(vec)
         vec[:] = [x/addition for x in vec]
         for i in range(0, len(self.states)):
-            self.states[i].belief = round(vec[i], 4)
+            self.states[i].belief = round(vec[i], 5)
 
     def __left_action_possible(self, state):
         '''
@@ -129,15 +129,15 @@ class PomdpGraph:
         for state in self.states:
             if state.block is False:
                 if state.left_state is None:
-                    state.belief += (evidence['Left']*.7 + evidence['Right']*0 + evidence['Up']*.1 + evidence['Down']*.1 + evidence['Center']*.1)*5
+                    state.belief += (evidence['Left']*1 + evidence['Right']*0 + evidence['Up']*0 + evidence['Down']*0 + evidence['Center']*0)*5
                 if state.right_state is None:
-                    state.belief += (evidence['Left']*0 + evidence['Right']*0.7 + evidence['Up']*.1 + evidence['Down']*.1 + evidence['Center']*.1)*5
+                    state.belief += (evidence['Left']*0 + evidence['Right']*1 + evidence['Up']*0 + evidence['Down']*0 + evidence['Center']*0)*5
                 if state.top_state is None:
-                    state.belief += (evidence['Left']*.1 + evidence['Right']*0.1 + evidence['Up']*.8 + evidence['Down']*0 + evidence['Center']*0.0)*5
+                    state.belief += (evidence['Left']*0 + evidence['Right']*0 + evidence['Up']*1 + evidence['Down']*0 + evidence['Center']*0)*5
                 if state.bottom_state is None:
-                    state.belief += (evidence['Left']*.1 + evidence['Right']*0.1 + evidence['Up']*0 + evidence['Down']*.8 + evidence['Center']*0.0)*5
+                    state.belief += (evidence['Left']*0 + evidence['Right']*0 + evidence['Up']*0 + evidence['Down']*1 + evidence['Center']*0)*5
                 if state.left_state is not None and state.right_state is not None and state.top_state is not None and state.bottom_state is not None:
-                    state.belief += (evidence['Left']*.15 + evidence['Right']*.15 + evidence['Up']*.15 + evidence['Down']*.15 + evidence['Center']*.6)*5
+                    state.belief += (evidence['Left']*0 + evidence['Right']*0 + evidence['Up']*0 + evidence['Down']*0 + evidence['Center']*0.7)*5
 
     def insert(self, x, y, value):
         if x >= self.dimension['x'] or y >= self.dimension['y']:
@@ -189,3 +189,99 @@ class Robot:
         self.analog_sensor = dict()
         self.digit_sensor = dict()
         self.direction = {'x': 1.0, 'y': 0.0}
+
+    def turn_90(self):
+        print('Turning 90')
+        pass
+
+    def turn_neg90(self):
+        print('Turning -90')
+        pass
+
+    def turn_180(self):
+        print('Turning 180')
+        pass
+
+    def move_front(self):
+        print('Moving Front')
+        pass
+
+    def go_right(self):
+        if self.vector == {'x': 1.0, 'y': 0.0}:
+            self.move_front()
+            pass
+
+        elif self.vector == {'x': -1.0, 'y': 0.0}:
+            self.turn_180()
+            self.vector = {'x': 1.0, 'y': 0.0}
+            self.move_front()
+
+        elif self.vector == {'x': 0.0, 'y': 1.0}:
+            self.turn_neg90()
+            self.vector = {'x': 1.0, 'y': 0.0}
+            self.move_front()
+
+        elif self.vector == {'x': 0.0, 'y': -1.0}:
+            self.turn_90()
+            self.vector = {'x': 1.0, 'y': 0.0}
+            self.move_front()
+
+    def go_left(self):
+        if self.vector == {'x': -1.0, 'y': 0.0}:
+            self.move_front()
+            pass
+
+        elif self.vector == {'x': 1.0, 'y': 0.0}:
+            self.turn_180()
+            self.vector = {'x': -1.0, 'y': 0.0}
+            self.move_front()
+
+        elif self.vector == {'x': 0.0, 'y': 1.0}:
+            self.turn_neg90()
+            self.vector = {'x': -1.0, 'y': 0.0}
+            self.move_front()
+
+        elif self.vector == {'x': 0.0, 'y': -1.0}:
+            self.turn_90()
+            self.vector = {'x': -1.0, 'y': 0.0}
+            self.move_front()
+
+    def go_up(self):
+        if self.vector == {'x': 0.0, 'y': 1.0}:
+            self.move_front()
+            pass
+
+        elif self.vector == {'x': 0.0, 'y': -1.0}:
+            self.turn_180()
+            self.vector = {'x': 0.0, 'y': 1.0}
+            self.move_front()
+
+        elif self.vector == {'x': -1.0, 'y': 0.0}:
+            self.turn_neg90()
+            self.vector = {'x': 0.0, 'y': 1.0}
+            self.move_front()
+
+        elif self.vector == {'x': 1.0, 'y': 0.0}:
+            self.turn_90()
+            self.vector = {'x': 0.0, 'y': 1.0}
+            self.move_front()
+
+    def go_down(self):
+        if self.vector == {'x': 0.0, 'y': -1.0}:
+            self.move_front()
+            pass
+
+        elif self.vector == {'x': 0.0, 'y': 1.0}:
+            self.turn_180()
+            self.vector = {'x': 0.0, 'y': -1.0}
+            self.move_front()
+
+        elif self.vector == {'x': -1.0, 'y': 0.0}:
+            self.turn_90()
+            self.vector = {'x': 0.0, 'y': -1.0}
+            self.move_front()
+
+        elif self.vector == {'x': 1.0, 'y': 0.0}:
+            self.turn_neg90()
+            self.vector = {'x': 0.0, 'y': -1.0}
+            self.move_front()
