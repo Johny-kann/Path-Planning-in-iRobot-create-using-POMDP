@@ -39,6 +39,6 @@ def DriveDirect(robot, left_wheel, right_Wheel, time):
 def print_graph_belief(graph):
     for y in range(0, graph.dimension['breadth']):
         for x in range(0, graph.dimension['length']):
-            print(graph.get_state(x, y).belief, end='\t|')
+            print(round(graph.get_state(x, y).belief, 5), end='\t|')
         print()
     print()

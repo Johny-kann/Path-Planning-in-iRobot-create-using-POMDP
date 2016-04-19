@@ -59,7 +59,7 @@ class PomdpGraph:
         addition = sum(vec)
         vec[:] = [x/addition for x in vec]
         for i in range(0, len(self.states)):
-            self.states[i].belief = round(vec[i], 5)
+            self.states[i].belief = vec[i]
 
     def __left_action_possible(self, state):
         '''
@@ -112,32 +112,32 @@ class PomdpGraph:
         '''
         for i in range(0, len(self.states)):
             if action['Left'] and self.__left_action_possible(self.states[i]):
-                self.states[i].belief += 10*self.states[i].right_state.belief
+                self.states[i].belief += 1*self.states[i].right_state.belief
             elif action['Right'] and self.__right_action_possible(self.states[i]):
-                self.states[i].belief += 10*self.states[i].left_state.belief
+                self.states[i].belief += 1*self.states[i].left_state.belief
             elif action['Up'] and self.__top_action_possible(self.states[i]):
-                self.states[i].belief += 10*self.states[i].bottom_state.belief
+                self.states[i].belief += 1*self.states[i].bottom_state.belief
             elif action['Down'] and self.__bottom_action_possible(self.states[i]):
-                self.states[i].belief += 10*self.states[i].top_state.belief
+                self.states[i].belief += 1*self.states[i].top_state.belief
 
     def update_evidence(self, evidence):
         '''
-        Updates the evidence with the belief state
+        Updates the evidence with the belief state Sum(P(e|S'))
         :param evidence: dictionary of sample {'Left':1,'Right':1,'Up':0,'Down':0,'Center':0}
         :return:
         '''
         for state in self.states:
             if state.block is False:
                 if state.left_state is None:
-                    state.belief += (evidence['Left']*1 + evidence['Right']*0 + evidence['Up']*0 + evidence['Down']*0 + evidence['Center']*0)*5
+                    state.belief += (evidence['Left'])*1
                 if state.right_state is None:
-                    state.belief += (evidence['Left']*0 + evidence['Right']*1 + evidence['Up']*0 + evidence['Down']*0 + evidence['Center']*0)*5
+                    state.belief += (evidence['Right'])*1
                 if state.top_state is None:
-                    state.belief += (evidence['Left']*0 + evidence['Right']*0 + evidence['Up']*1 + evidence['Down']*0 + evidence['Center']*0)*5
+                    state.belief += (evidence['Up'])*1
                 if state.bottom_state is None:
-                    state.belief += (evidence['Left']*0 + evidence['Right']*0 + evidence['Up']*0 + evidence['Down']*1 + evidence['Center']*0)*5
+                    state.belief += (evidence['Down'])*1
                 if state.left_state is not None and state.right_state is not None and state.top_state is not None and state.bottom_state is not None:
-                    state.belief += (evidence['Left']*0 + evidence['Right']*0 + evidence['Up']*0 + evidence['Down']*0 + evidence['Center']*0.7)*5
+                    state.belief += (evidence['Center']*0.5)*1
 
     def insert(self, x, y, value):
         if x >= self.dimension['x'] or y >= self.dimension['y']:
