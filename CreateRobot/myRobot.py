@@ -112,14 +112,32 @@ class PomdpGraph:
         '''
         for i in range(0, len(self.states)):
             if action['Left'] and self.__left_action_possible(self.states[i]):
-                self.states[i].belief += 100*self.states[i].right_state.belief
+                self.states[i].belief += 10*self.states[i].right_state.belief
             elif action['Right'] and self.__right_action_possible(self.states[i]):
-                self.states[i].belief += 100*self.states[i].left_state.belief
+                self.states[i].belief += 10*self.states[i].left_state.belief
             elif action['Up'] and self.__top_action_possible(self.states[i]):
-                self.states[i].belief += 100*self.states[i].bottom_state.belief
+                self.states[i].belief += 10*self.states[i].bottom_state.belief
             elif action['Down'] and self.__bottom_action_possible(self.states[i]):
-                self.states[i].belief += 100*self.states[i].top_state.belief
+                self.states[i].belief += 10*self.states[i].top_state.belief
 
+    def update_evidence(self, evidence):
+        '''
+        Updates the evidence with the belief state
+        :param evidence: dictionary of sample {'Left':1,'Right':1,'Up':0,'Down':0,'Center':0}
+        :return:
+        '''
+        for state in self.states:
+            if state.block is False:
+                if state.left_state is None:
+                    state.belief += (evidence['Left']*.7 + evidence['Right']*0 + evidence['Up']*.1 + evidence['Down']*.1 + evidence['Center']*.1)*5
+                if state.right_state is None:
+                    state.belief += (evidence['Left']*0 + evidence['Right']*0.7 + evidence['Up']*.1 + evidence['Down']*.1 + evidence['Center']*.1)*5
+                if state.top_state is None:
+                    state.belief += (evidence['Left']*.1 + evidence['Right']*0.1 + evidence['Up']*.8 + evidence['Down']*0 + evidence['Center']*0.0)*5
+                if state.bottom_state is None:
+                    state.belief += (evidence['Left']*.1 + evidence['Right']*0.1 + evidence['Up']*0 + evidence['Down']*.8 + evidence['Center']*0.0)*5
+                if state.left_state is not None and state.right_state is not None and state.top_state is not None and state.bottom_state is not None:
+                    state.belief += (evidence['Left']*.15 + evidence['Right']*.15 + evidence['Up']*.15 + evidence['Down']*.15 + evidence['Center']*.6)*5
 
     def insert(self, x, y, value):
         if x >= self.dimension['x'] or y >= self.dimension['y']:

@@ -34,29 +34,59 @@ graph.normalize()
 funcs.print_graph_belief(graph)
 
 action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
+evidence = {'Left': 0.0,'Right': 0.0,'Up': 0.0,'Down': 0.0,'Center': 1.0}
 graph.update_beliefs(action)
-graph.normalize()
-funcs.print_graph_belief(graph)
-
-action = {'Left': False, 'Right': False, 'Up': True, 'Down': False}
-graph.update_beliefs(action)
-graph.normalize()
-funcs.print_graph_belief(graph)
-
-action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
-graph.update_beliefs(action)
+#graph.normalize()
+graph.update_evidence(evidence)
 graph.normalize()
 funcs.print_graph_belief(graph)
 
 action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
+evidence = {'Left': 1.0,'Right': 0,'Up': 0,'Down': 0,'Center': 0.0}
 graph.update_beliefs(action)
+graph.update_evidence(evidence)
+
 graph.normalize()
 funcs.print_graph_belief(graph)
 
 action = {'Left': False, 'Right': False, 'Up': False, 'Down': True}
+evidence = {'Left': 0,'Right': 0,'Up': 0,'Down': 1,'Center': 0}
 graph.update_beliefs(action)
-#graph.normalize()
+graph.update_evidence(evidence)
+graph.normalize()
+funcs.print_graph_belief(graph)
+
+action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
+evidence = {'Left': 0,'Right': 0,'Up': 0,'Down': 1,'Center': 0}
+graph.update_beliefs(action)
+graph.normalize()
+funcs.print_graph_belief(graph)
+
+action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
+evidence = {'Left': 0,'Right': 0,'Up': 0,'Down': 1,'Center': 0}
+graph.update_beliefs(action)
+graph.normalize()
 funcs.print_graph_belief(graph)
 
 
+# action = {'Left': False, 'Right': False, 'Up': True, 'Down': False}
+# evidence = {'Left': 1,'Right': 0,'Up': 0,'Down': 0,'Center': 0}
+# graph.update_beliefs(action)
+# graph.update_evidence(evidence)
+# graph.normalize()
+# funcs.print_graph_belief(graph)
+#
+# action = {'Left': False, 'Right': False, 'Up': True, 'Down': False}
+# evidence = {'Left': 1,'Right': 0,'Up': 0,'Down': 0,'Center': 0}
+# graph.update_beliefs(action)
+# graph.update_evidence(evidence)
+# graph.normalize()
+# funcs.print_graph_belief(graph)
+#
+# action = {'Left': False, 'Right': False, 'Up': True, 'Down': False}
+# evidence = {'Left': 1,'Right': 0,'Up': 0,'Down': 0,'Center': 0}
+# graph.update_beliefs(action)
+# graph.update_evidence(evidence)
+# graph.normalize()
+# funcs.print_graph_belief(graph)
 
