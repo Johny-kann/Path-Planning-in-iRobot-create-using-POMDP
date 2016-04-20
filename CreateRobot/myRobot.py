@@ -284,14 +284,6 @@ class PomdpGraph:
         # statement to utility based on the equation ( R(s) + max by a [sum by s'(P(s'|s,a)u(s')] )
         rewards = [sum([self.find_transition_state(i, x, state)*x.utility[0] for x in refined_states]) for i in actions]
 
-        # rew =[]
-        # rewards = []
-        # for i in actions:
-        #     for x in refined_states:
-        #         rew += [self.find_transition_state(i, x, state)*x.utility[0]]
-        #     rewards += [sum(rew)]
-
-
         maximum = max(rewards)
         max_action = actions[rewards.index(maximum)]
         return [state.reward + maximum, max_action]
@@ -302,6 +294,20 @@ class PomdpGraph:
         for i in utilities_new:
             self.get_state(i[0], i[1]).utility = i[2]
 
+    def find_min_distance(self, utility_new, utility_old):
+        if len(utility_new) != len(utility_old):
+            return -1
+        else:
+            return sum([(utility_new[i] - utility_old[i])**2 for i in range(len(utility_old))])
+
+    def find_utility_optimal_MDP(self):
+        error = 100
+        while error > 5:
+            utility_old = [x.utility[0] for x in self.states if x.reward_set is False and x.block is False]
+            self.find_utility_MDP()
+            utility_new = [x.utility[0] for x in self.states if x.reward_set is False and x.block is False]
+            error = self.find_min_distance(utility_new, utility_old)
+            print(error)
 
 class Robot:
     """
