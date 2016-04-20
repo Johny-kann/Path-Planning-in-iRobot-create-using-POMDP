@@ -12,6 +12,7 @@ class State:
         self.bottom_state = bottom_state
         self.pos = {'x': x, 'y': y}
         self.block = False
+        self.reward = 0.0
 
 
     def set_nearby_states(self, left_state, right_state, top_state, bottom_state):
@@ -104,6 +105,82 @@ class PomdpGraph:
             return True
         else:
             return False
+
+    def __give_evidence(self, state, evidence):
+        '''
+        gives the probaility for the particular state
+        :param state:
+        :return:
+        '''
+        if evidence == 'Left' and state.left_state is None:
+            prob = 0.9
+        elif evidence == 'Right' and state.right_state is None:
+            prob = 0.9
+        elif evidence == 'Top' and state.top_state is None:
+            prob = 0.9
+        elif evidence == 'Bottom' and state.bottom_state is None:
+            prob = 0.9
+        elif evidence == 'Center':
+            prob = 0.6
+        return prob
+
+    def find_transition_state(self, action, new_state, old_state):
+        '''
+        returns the probability of the transition model P(s'|s,a)
+        :param action: possible actions ie Left, Right, Up, Bottom
+        :param new_state:
+        :param old_state:
+        :return:
+        '''
+        if action == 'Left' and new_state.right_state is old_state:
+            prob = 0.9
+        elif action == 'Right' and new_state.left_state is old_state:
+            prob = 0.9
+        elif action == 'Up' and new_state.bottom_state is old_state:
+            prob = 0.9
+        elif action == 'Bottom' and new_state.top_state is old_state:
+            prob = 0.9
+        else:
+            prob = 0.1
+        return prob
+
+    def __find_policy_for_plan(self, action, evidence, nearby_states, state):
+        '''
+        :param action: Actions such as Left, Right, Up and Down
+        :param evidence: dict of evidences {'Left':1,'Right':0,'Up':0,'Down':0,'Center':0]
+        :param nearby_states: list of near by states to the original state
+        :param state: the state for which the policy is needed
+        :return: utility of the state for that plan
+        '''
+        evidence_list = ['Left']*evidence['Left'] + ['Right']*evidence['Right'] + ['Up']*evidence['Up'] + ['Down']*evidence['Down'] + ['Center']*evidence['Center']
+        second_part = 0
+        for temp_state in nearby_states:
+            summ = 0
+            for evi in evidence_list:
+                summ += self.__give_evidence(temp_state, evi) * temp_state.reward
+
+            second_part += self.find_transition_state(action, temp_state, state)*summ
+        policy = state.reward + second_part
+        return policy
+
+
+    def find_policy(self, evidence, action, state):
+        '''
+        Finds the policy for the state alpha(state)
+        :param action:
+        :param evidence:list of evidences ['Left','Right','Top','Bottom']
+        :return: alpha(state)
+        '''
+        near_states = [state.left_state, state.right_state, state.top_state, state.bottom_state, state]
+        refined_states = [x for x in near_states if x is not None]
+
+        policy = {'Left': self.__find_policy_for_plan('Left', evidence, refined_states, state),
+                  'Right': self.__find_policy_for_plan('Right', evidence, refined_states, state),
+                  'Up': self.__find_policy_for_plan('Up', evidence, refined_states, state),
+                  'Down': self.__find_policy_for_plan('Down', evidence, refined_states, state)}
+        return policy
+
+    def find_max_policy(self, evidence, action, state):
 
     def update_beliefs(self, action):
         '''
