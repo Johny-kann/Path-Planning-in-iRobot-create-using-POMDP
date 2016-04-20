@@ -1,10 +1,9 @@
 __author__ = 'Johny kann'
 
-evidence = ['Right','Left',None,None]
-
-evi = [x for x in evidence if x is None]
-
-print(evi)
+evidence = {'x':1,'y':0,'z':123}
+keys = list(evidence.keys())
+values = list(evidence.values())
+print(keys[values.index(max(values))])
 
 
 

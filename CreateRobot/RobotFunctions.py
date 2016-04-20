@@ -42,3 +42,17 @@ def print_graph_belief(graph):
             print(round(graph.get_state(x, y).belief, 5), end='\t|')
         print()
     print()
+
+def print_utility(graph):
+    for y in range(0, graph.dimension['breadth']):
+        for x in range(0, graph.dimension['length']):
+            print(round(graph.get_state(x, y).utility[0], 5),graph.get_state(x, y).utility[1], end='\t|')
+        print()
+    print()
+
+def print_policies(graph):
+    for y in range(0, graph.dimension['breadth']):
+        for x in range(0, graph.dimension['length']):
+            print(graph.get_state(x, y).utility[1], end='\t|')
+        print()
+    print()

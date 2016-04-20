@@ -5,12 +5,19 @@ import CreateRobot as funcs
 import numpy as np
 
 
-state = [ model.State(None, None, None, None) for i in range(0, 10) ]
+state = [model.State(None, None, None, None) for i in range(0, 10)]
 
+graph = model.PomdpGraph(10, 6)
 
-graph = model.PomdpGraph(5,5)
+graph.make_block(2, 1)
+graph.make_block(2, 2)
+graph.make_block(2, 3)
+graph.make_block(2, 4)
 
-graph.make_block(1,2)
+graph.make_block(4, 1)
+graph.make_block(4, 2)
+graph.make_block(4, 3)
+graph.make_block(4, 4)
 
 graph.re_graph()
 
@@ -41,37 +48,48 @@ graph.update_evidence(evidence)
 graph.normalize()
 funcs.print_graph_belief(graph)
 
-action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
-evidence = {'Left': 0.0,'Right': 0.0,'Up': 0.0,'Down': 0.0,'Center': 1.0}
-graph.update_beliefs(action)
+graph.get_state(5, 2).set_as_destination(100)
+
+
+for i in range(15):
+    graph.find_utility_MDP()
+    funcs.print_utility(graph)
+
+funcs.print_policies(graph)
+#print(graph.find_utility_state(graph.get_state(3,3)))
+#print(graph.get_state(3, 0).utility)
+
+# action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
+# evidence = {'Left': 0.0,'Right': 0.0,'Up': 0.0,'Down': 0.0,'Center': 1.0}
+# graph.update_beliefs(action)
+# # graph.normalize()
+# graph.update_evidence(evidence)
 # graph.normalize()
-graph.update_evidence(evidence)
-graph.normalize()
-funcs.print_graph_belief(graph)
-
-action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
-evidence = {'Left': 0.0,'Right': 0.0,'Up': 0.0,'Down': 1.0,'Center': 0.0}
-graph.update_beliefs(action)
-#graph.normalize()
-graph.update_evidence(evidence)
-graph.normalize()
-funcs.print_graph_belief(graph)
-
-action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
-evidence = {'Left': 1.0,'Right': 0.0,'Up': 0.0,'Down': 0.0,'Center': 0.0}
-graph.update_beliefs(action)
-#graph.normalize()
-graph.update_evidence(evidence)
-graph.normalize()
-funcs.print_graph_belief(graph)
-
-action = {'Left': False, 'Right': False, 'Up': False, 'Down': True}
-evidence = {'Left': 1.0,'Right': 1.0,'Up': 0.0,'Down': 0.0,'Center': 0.0}
-graph.update_beliefs(action)
-#graph.normalize()
-graph.update_evidence(evidence)
-graph.normalize()
-funcs.print_graph_belief(graph)
+# funcs.print_graph_belief(graph)
+#
+# action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
+# evidence = {'Left': 0.0,'Right': 0.0,'Up': 0.0,'Down': 1.0,'Center': 0.0}
+# graph.update_beliefs(action)
+# #graph.normalize()
+# graph.update_evidence(evidence)
+# graph.normalize()
+# funcs.print_graph_belief(graph)
+#
+# action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
+# evidence = {'Left': 1.0,'Right': 0.0,'Up': 0.0,'Down': 0.0,'Center': 0.0}
+# graph.update_beliefs(action)
+# #graph.normalize()
+# graph.update_evidence(evidence)
+# graph.normalize()
+# funcs.print_graph_belief(graph)
+#
+# action = {'Left': False, 'Right': False, 'Up': False, 'Down': True}
+# evidence = {'Left': 1.0,'Right': 1.0,'Up': 0.0,'Down': 0.0,'Center': 0.0}
+# graph.update_beliefs(action)
+# #graph.normalize()
+# graph.update_evidence(evidence)
+# graph.normalize()
+# funcs.print_graph_belief(graph)
 
 
 

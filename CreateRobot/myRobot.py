@@ -12,8 +12,14 @@ class State:
         self.bottom_state = bottom_state
         self.pos = {'x': x, 'y': y}
         self.block = False
-        self.reward = 0.0
+        self.reward = -0.4
+        self.utility = [0.0, 'Stay']
+        self.reward_set = False
 
+    def set_as_destination(self, reward):
+        self.reward = reward
+        self.utility = [reward,'Stay']
+        self.reward_set = True
 
     def set_nearby_states(self, left_state, right_state, top_state, bottom_state):
         self.left_state = left_state
@@ -24,12 +30,14 @@ class State:
     def set_block(self):
         self.block = True
         self.belief = 0.0
+        self.utility = [0.0,'Stay']
         self.set_nearby_states(None, None, None, None)
 
 
 class PomdpGraph:
 
     def __init__(self, length, breadth):
+
         self.dimension = {'length': length, 'breadth': breadth}
 #        self.states = [0]*length*breadth
         self.states = [State(None, None, None, None) for i in range(0, length*breadth)]
@@ -97,7 +105,7 @@ class PomdpGraph:
 
     def __bottom_action_possible(self, state):
         '''
-        Possibility to reach this state through by moving top P(S'|action = 'Bottom')
+        Possibility to reach this state through by moving top P(S'|action = 'Down')
         :param state:
         :return:
         '''
@@ -118,7 +126,7 @@ class PomdpGraph:
             prob = 0.9
         elif evidence == 'Top' and state.top_state is None:
             prob = 0.9
-        elif evidence == 'Bottom' and state.bottom_state is None:
+        elif evidence == 'Down' and state.bottom_state is None:
             prob = 0.9
         elif evidence == 'Center':
             prob = 0.6
@@ -132,16 +140,20 @@ class PomdpGraph:
         :param old_state:
         :return:
         '''
-        if action == 'Left' and new_state.right_state is old_state:
-            prob = 0.9
-        elif action == 'Right' and new_state.left_state is old_state:
-            prob = 0.9
-        elif action == 'Up' and new_state.bottom_state is old_state:
-            prob = 0.9
-        elif action == 'Bottom' and new_state.top_state is old_state:
-            prob = 0.9
+        if new_state.block:
+            prob = 0.0
+        elif action == 'Left' and (new_state.right_state is old_state or (new_state is old_state and old_state.left_state is None)):
+            prob = 1.0
+        elif action == 'Right' and (new_state.left_state is old_state or (new_state is old_state and old_state.right_state is None)):
+            prob = 1.0
+        elif action == 'Up' and (new_state.bottom_state is old_state or (new_state is old_state and old_state.top_state is None)):
+            prob = 1.0
+        elif action == 'Down' and (new_state.top_state is old_state or (new_state is old_state and old_state.bottom_state is None)):
+            prob = 1.0
+        elif action =='Stay' and (new_state is old_state):
+            prob = 1.0
         else:
-            prob = 0.1
+            prob = 0.0
         return prob
 
     def __find_policy_for_plan(self, action, evidence, nearby_states, state):
@@ -168,7 +180,7 @@ class PomdpGraph:
         '''
         Finds the policy for the state alpha(state)
         :param action:
-        :param evidence:list of evidences ['Left','Right','Top','Bottom']
+        :param evidence:list of evidences ['Left','Right','Top','Down']
         :return: alpha(state)
         '''
         near_states = [state.left_state, state.right_state, state.top_state, state.bottom_state, state]
@@ -181,6 +193,11 @@ class PomdpGraph:
         return policy
 
     def find_max_policy(self, evidence, action, state):
+        evi = ['Left']*evidence['Left'] + ['Right']*evidence['Right'] + ['Down']*evidence['Down'] + ['Up']*evidence['Up'] + ['Center']*evidence['Center']
+        policies = self.find_policy(evi, action, state)
+        keys = list(policies.keys())
+        values = list(policies.values())
+        return policies[keys[values.index(max(values))]]
 
     def update_beliefs(self, action):
         '''
@@ -252,6 +269,38 @@ class PomdpGraph:
                 if y < self.dimension['breadth']-1:
                     if self.get_state(x, y+1).block is not True:
                         value.bottom_state = self.get_state(x, y+1)
+
+    def find_utility_state(self, state):
+        '''
+        computes the utility for a particular state
+        :rtype : float
+        :param state: The state for which utility is calculated
+        :return: the utility
+        '''
+        nearby_states = [state.left_state, state.right_state, state.top_state, state.bottom_state, state]
+        refined_states = [x for x in nearby_states if x is not None]
+        actions = ['Stay', 'Left', 'Right', 'Up', 'Down']
+
+        # statement to utility based on the equation ( R(s) + max by a [sum by s'(P(s'|s,a)u(s')] )
+        rewards = [sum([self.find_transition_state(i, x, state)*x.utility[0] for x in refined_states]) for i in actions]
+
+        # rew =[]
+        # rewards = []
+        # for i in actions:
+        #     for x in refined_states:
+        #         rew += [self.find_transition_state(i, x, state)*x.utility[0]]
+        #     rewards += [sum(rew)]
+
+
+        maximum = max(rewards)
+        max_action = actions[rewards.index(maximum)]
+        return [state.reward + maximum, max_action]
+
+    def find_utility_MDP(self):
+        utilities_new = [[state.pos['x'], state.pos['y'], self.find_utility_state(state)] for state in self.states if state is not None and state.reward_set is False]
+
+        for i in utilities_new:
+            self.get_state(i[0], i[1]).utility = i[2]
 
 
 class Robot:
