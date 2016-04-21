@@ -1,5 +1,5 @@
 __author__ = 'Johny Kannan'
-import time
+import time, threading, CreateRobot
 
 class State:
 
@@ -321,6 +321,33 @@ class Robot:
         self.analog_sensor = dict()
         self.digit_sensor = dict()
         self.direction = {'x': 1.0, 'y': 0.0}
+        self.robot_active = False
+
+    def __sensor_function(self):
+        while self.robot_active:
+            self.analog_sensor = CreateRobot.get_analog_sensor(self.robot)
+            self.digit_sensor = CreateRobot.get_digital_sensor(self.robot)
+
+            if self.digit_sensor['bump_and_sensors']['BUMP_LEFT'] is 1:
+                self.robot.stop()
+                self.bump_left_remedy()
+
+            if self.digit_sensor['bump_and_sensors']['BUMP_RIGHT'] is 1:
+                self.robot.stop()
+                self.bump_right_remedy()
+
+            print(self.analog_sensor, self.digit_sensor, sep='\n')
+            time.sleep(0.3)
+
+    def robot_stop(self):
+        self.robot.stop()
+        self.robot.toSafeMode()
+        self.robot_active = False
+
+    def start_sensing(self):
+        t = threading.Timer(.1, self.__sensor_function)
+        self.robot_active = True
+        t.start()
 
     def turn_90(self):
         print('Turning 90')
@@ -350,7 +377,6 @@ class Robot:
         time.sleep(.2)
         self.robot.stop()
 
-
     def move_front(self):
         print('Moving Front')
         self.robot.driveDirect(30, 30)
@@ -360,7 +386,6 @@ class Robot:
     def go_right(self):
         if self.vector == {'x': 1.0, 'y': 0.0}:
             self.move_front()
-            pass
 
         elif self.vector == {'x': -1.0, 'y': 0.0}:
             self.turn_180()
@@ -380,7 +405,6 @@ class Robot:
     def go_left(self):
         if self.vector == {'x': -1.0, 'y': 0.0}:
             self.move_front()
-            pass
 
         elif self.vector == {'x': 1.0, 'y': 0.0}:
             self.turn_180()
@@ -400,7 +424,6 @@ class Robot:
     def go_up(self):
         if self.vector == {'x': 0.0, 'y': 1.0}:
             self.move_front()
-            pass
 
         elif self.vector == {'x': 0.0, 'y': -1.0}:
             self.turn_180()
@@ -420,7 +443,6 @@ class Robot:
     def go_down(self):
         if self.vector == {'x': 0.0, 'y': -1.0}:
             self.move_front()
-            pass
 
         elif self.vector == {'x': 0.0, 'y': 1.0}:
             self.turn_180()

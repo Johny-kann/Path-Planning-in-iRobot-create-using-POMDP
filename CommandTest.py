@@ -41,13 +41,11 @@ def print_thread():
         print('I am in thread')
         time.sleep(.5)
 
-k = 5
-robo_active = True
-t = thread.Timer(.1, sensor_values)
-t.start()
+robo.start_sensing()
 robo.vector['x'] = 0.0
 robo.vector['y'] = 1.0
+robo.go_up()
 robo.go_right()
 robo.go_left()
-
-robo_active = False
+robo.go_down()
+robo.robot_stop()
