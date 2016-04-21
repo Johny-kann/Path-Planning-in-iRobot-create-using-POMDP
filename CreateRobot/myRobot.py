@@ -1,5 +1,5 @@
 __author__ = 'Johny Kannan'
-
+import time
 
 class State:
 
@@ -324,19 +324,38 @@ class Robot:
 
     def turn_90(self):
         print('Turning 90')
-        pass
+        self.robot.driveDirect(-30, 30)
+        time.sleep(.75)
+        self.robot.stop()
 
     def turn_neg90(self):
         print('Turning -90')
-        pass
+        self.robot.driveDirect(30, -30)
+        time.sleep(.75)
+        self.robot.stop()
 
     def turn_180(self):
         print('Turning 180')
-        pass
+        self.robot.driveDirect(-30, 30)
+        time.sleep(1.5)
+        self.robot.stop()
+
+    def bump_left_remedy(self):
+        self.robot.driveDirect(30,-30)
+        time.sleep(.2)
+        self.robot.stop()
+
+    def bump_right_remedy(self):
+        self.robot.driveDirect(-30,30)
+        time.sleep(.2)
+        self.robot.stop()
+
 
     def move_front(self):
         print('Moving Front')
-        pass
+        self.robot.driveDirect(30, 30)
+        time.sleep(1.5)
+        self.robot.stop()
 
     def go_right(self):
         if self.vector == {'x': 1.0, 'y': 0.0}:
