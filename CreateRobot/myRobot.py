@@ -451,26 +451,129 @@ class Robot:
         self.digit_sensor = dict()
         self.direction = {'x': 1.0, 'y': 0.0}
         self.robot_active = False
+        self.evidence = dict()
+        self.running = False
+
+
+    def __set_evidence(self, evidence):
+        if evidence is 'Left':
+            self.evidence['Right'] = 0.0
+            self.evidence['Left'] = 1.0
+            self.evidence['Up'] = 0.0
+            self.evidence['Down'] = 0.0
+            self.evidence['Center'] = 0.0
+
+        elif evidence is 'Right':
+            self.evidence['Right'] = 1.0
+            self.evidence['Left'] = 0.0
+            self.evidence['Up'] = 0.0
+            self.evidence['Down'] = 0.0
+            self.evidence['Center'] = 0.0
+
+        elif evidence is 'Up':
+            self.evidence['Right'] = 0.0
+            self.evidence['Left'] = 0.0
+            self.evidence['Up'] = 1.0
+            self.evidence['Down'] = 0.0
+            self.evidence['Center'] = 0.0
+
+        elif evidence is 'Down':
+            self.evidence['Right'] = 0.0
+            self.evidence['Left'] = 0.0
+            self.evidence['Up'] = 0.0
+            self.evidence['Down'] = 1.0
+            self.evidence['Center'] = 0.0
+
+        else:
+            self.evidence['Right'] = 0.0
+            self.evidence['Left'] = 0.0
+            self.evidence['Up'] = 0.0
+            self.evidence['Down'] = 0.0
+            self.evidence['Center'] = 1.0
+
+
+    def extract_evidence(self, analog, digital):
+        if digital['bump_and_sensors']['BUMP_LEFT'] is 1 and digital['bump_and_sensors']['BUMP_RIGHT'] is 1:
+            if self.vector == {'x': 1.0, 'y': 0.0}:
+                self.__set_evidence('Right')
+            elif self.vector == {'x': -1.0, 'y': 0.0}:
+                self.__set_evidence('Left')
+            elif self.vector == {'x': 0.0, 'y': 1.0}:
+                self.__set_evidence('Up')
+            else:
+                self.__set_evidence('Down')
+
+        elif digital['bump_and_sensors']['BUMP_LEFT'] is 1:
+            if self.vector == {'x': 1.0, 'y': 0.0}:
+                self.__set_evidence('Up')
+            elif self.vector == {'x': -1.0, 'y': 0.0}:
+                self.__set_evidence('Down')
+            elif self.vector == {'x': 0.0, 'y': 1.0}:
+                self.__set_evidence('Left')
+            else:
+                self.__set_evidence('Right')
+
+        elif digital['bump_and_sensors']['BUMP_RIGHT'] is 1 or digital['wall'] is 1 or analog['wall'] > 80:
+            if self.vector == {'x': 1.0, 'y': 0.0}:
+                self.__set_evidence('Down')
+            elif self.vector == {'x': -1.0, 'y': 0.0}:
+                self.__set_evidence('Up')
+            elif self.vector == {'x': 0.0, 'y': 1.0}:
+                self.__set_evidence('Right')
+            else:
+                self.__set_evidence('Left')
+
+        else:
+            self.__set_evidence('Center')
+
 
     def __sensor_function(self):
         while self.robot_active:
             self.analog_sensor = CreateRobot.get_analog_sensor(self.robot)
             self.digit_sensor = CreateRobot.get_digital_sensor(self.robot)
 
-            if self.digit_sensor['bump_and_sensors']['BUMP_LEFT'] is 1:
+            if self.digit_sensor['bump_and_sensors']['BUMP_LEFT'] is 1 and self.digit_sensor['bump_and_sensors']['BUMP_RIGHT'] is 1:
                 self.robot.stop()
+
+            elif self.digit_sensor['bump_and_sensors']['BUMP_LEFT'] is 1:
+                self.robot.stop()
+                print("Left Remedy")
                 self.bump_left_remedy()
+                if self.running:
+                    self.robot.driveDirect(30, 30)
 
-            if self.digit_sensor['bump_and_sensors']['BUMP_RIGHT'] is 1:
+            elif self.digit_sensor['bump_and_sensors']['BUMP_RIGHT'] is 1:
                 self.robot.stop()
+                print("Right Remedy")
                 self.bump_right_remedy()
+                if self.running:
+                    self.robot.driveDirect(30, 30)
 
+            self.extract_evidence(self.analog_sensor, self.digit_sensor)
             time.sleep(0.3)
 
+    def execute_action(self, action):
+        if action is 'Left':
+            self.go_left()
+
+        elif action is 'Right':
+            self.go_right()
+
+        elif action is 'Up':
+            self.go_up()
+
+        elif action is 'Down':
+            self.go_down()
+
+        elif action is 'Stay':
+            self.robot_stop()
+            self.running = False
+
     def robot_stop(self):
+        self.robot_active = False
         self.robot.stop()
         self.robot.toSafeMode()
-        self.robot_active = False
+
 
     def start_sensing(self):
         t = threading.Timer(.1, self.__sensor_function)
@@ -507,8 +610,10 @@ class Robot:
 
     def move_front(self):
         print('Moving Front')
+        self.running = True
         self.robot.driveDirect(30, 30)
         time.sleep(1.5)
+        self.running = False
         self.robot.stop()
 
     def go_right(self):
@@ -540,12 +645,12 @@ class Robot:
             self.move_front()
 
         elif self.vector == {'x': 0.0, 'y': 1.0}:
-            self.turn_neg90()
+            self.turn_90()
             self.vector = {'x': -1.0, 'y': 0.0}
             self.move_front()
 
         elif self.vector == {'x': 0.0, 'y': -1.0}:
-            self.turn_90()
+            self.turn_neg90()
             self.vector = {'x': -1.0, 'y': 0.0}
             self.move_front()
 
