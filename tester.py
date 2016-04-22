@@ -45,23 +45,46 @@ graph.normalize()
 funcs.print_graph_belief(graph)
 
 graph.get_state(3, 3).set_as_destination(100)
+graph.reward_state = graph.get_state(3, 3)
 funcs.print_pomdp_utility(graph)
 
 graph.find_optimal_pomdp()
 
 funcs.print_pomdp_utility(graph)
 
-funcs.print_utility(graph)
-
-
 # # action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
-# action = get_max_state().utility[1]
-# evidence = {'Left': 0.0, 'Right': 0.0, 'Up': 0.0,'Down': 0.0, 'Center': 1.0}
-# graph.update_beliefs(action)
-# #graph.normalize()
-# graph.update_evidence(evidence)
-# graph.normalize()
-# funcs.print_graph_belief(graph)
 
+best_action = graph.give_next_action_pompd()
+print(graph.give_next_action_pompd())
+
+action = best_action
+evidence = {'Left': 0.0, 'Right': 0.0, 'Up': 0.0,'Down': 0.0, 'Center': 1.0}
+graph.update_beliefs(action)
+#graph.normalize()
+graph.update_evidence(evidence)
+graph.normalize()
+funcs.print_graph_belief(graph)
+
+best_action = graph.give_next_action_pompd()
+print(graph.give_next_action_pompd())
+
+action = best_action
+evidence = {'Left': 0.0, 'Right': 0.0, 'Up': 0.0,'Down': 0.0, 'Center': 1.0}
+graph.update_beliefs(action)
+#graph.normalize()
+graph.update_evidence(evidence)
+graph.normalize()
+funcs.print_graph_belief(graph)
+
+best_action = graph.give_next_action_pompd()
+print(graph.give_next_action_pompd())
+
+action = best_action
+evidence = {'Left': 0.0, 'Right': 0.0, 'Up': 0.0,'Down': 0.0, 'Center': 1.0}
+graph.update_beliefs(action)
+#graph.normalize()
+graph.update_evidence(evidence)
+graph.normalize()
+funcs.print_graph_belief(graph)
 
 

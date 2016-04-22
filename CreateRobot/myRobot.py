@@ -44,6 +44,7 @@ class PomdpGraph:
 #        self.states = [0]*length*breadth
         self.states = [State(None, None, None, None) for i in range(0, length*breadth)]
         self.utilities_pomdp = dict()
+        self.reward_state = None
 
     def set_states_list(self, states):
         self.states = states
@@ -274,6 +275,55 @@ class PomdpGraph:
         max_state = self.states[[x.belief for x in self.states].index(max_belief)]
         print(max_state.belief, max_state.pos, max_state.utility)
         return max_state
+
+    def give_next_action_pompd(self):
+        '''
+        Returns the next action to be executed based on the current belief states
+        :return: action example 'Left','Right','Up','Down','Stay'
+        '''
+        vector_belief = [state.belief for state in self.states if state is not None and state.reward_set is False and state.block is False]
+        vector_left = [x[2] for x in self.utilities_pomdp['Left']]
+        vector_right = [x[2] for x in self.utilities_pomdp['Right']]
+        vector_up = [x[2] for x in self.utilities_pomdp['Up']]
+        vector_down = [x[2] for x in self.utilities_pomdp['Down']]
+        vector_stay = [x[2] for x in self.utilities_pomdp['Stay']]
+
+        vector_belief += [self.reward_state.belief]
+        vector_left += [0]
+        vector_right += [0]
+        vector_up += [0]
+        vector_down += [0]
+        vector_stay += [0]
+
+        import numpy as np
+        vect_arr = np.array(vector_belief)
+        vect_left = np.array(vector_left)
+        vect_right = np.array(vector_right)
+        vect_up = np.array(vector_up)
+        vect_down = np.array(vector_down)
+        vect_stay = np.array(vector_stay)
+
+        left = np.dot(vect_arr, vect_left)
+        right = np.dot(vect_arr, vect_right)
+        up = np.dot(vect_arr, vect_up)
+        down = np.dot(vect_arr, vect_down)
+        stay = np.dot(vect_arr, vect_stay)
+
+        action = [left,right,up,down,stay]
+        index = action.index(max(action))
+
+        if index is 0:
+            return 'Left'
+        elif index is 1:
+            return  'Right'
+        elif index is 2:
+            return 'Up'
+        elif index is 3:
+            return 'Down'
+        else:
+            return 'Stay'
+
+
 
     def re_graph(self):
         length = self.dimension['length']
