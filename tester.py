@@ -44,76 +44,19 @@ graph.normalize()
 
 funcs.print_graph_belief(graph)
 
-graph.get_state(5, 2).set_as_destination(100)
+graph.get_state(3, 3).set_as_destination(100)
+funcs.print_pomdp_utility(graph)
 
-graph.find_utility_optimal_MDP()
+graph.find_optimal_pomdp()
+
+funcs.print_pomdp_utility(graph)
 
 funcs.print_utility(graph)
 
-def get_max_state():
-    max_belief = max([x.belief for x in graph.states])
-    max_state = graph.states[[x.belief for x in graph.states].index(max_belief)]
-    print(max_state.belief, max_state.pos, max_state.utility)
-    return max_state
 
-# action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
-action = get_max_state().utility[1]
-evidence = {'Left': 0.0, 'Right': 0.0, 'Up': 0.0,'Down': 0.0, 'Center': 1.0}
-graph.update_beliefs(action)
-#graph.normalize()
-graph.update_evidence(evidence)
-graph.normalize()
-funcs.print_graph_belief(graph)
-
-# action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
-action = get_max_state().utility[1]
-evidence = {'Left': 0.0, 'Right': 1.0, 'Up': 0.0,'Down': 0.0, 'Center': 0.0}
-graph.update_beliefs(action)
-#graph.normalize()
-graph.update_evidence(evidence)
-graph.normalize()
-funcs.print_graph_belief(graph)
-
-action = get_max_state().utility[1]
-evidence = {'Left': 0.0, 'Right': 1.0, 'Up': 0.0,'Down': 0.0, 'Center': 0.0}
-graph.update_beliefs(action)
-#graph.normalize()
-graph.update_evidence(evidence)
-graph.normalize()
-funcs.print_graph_belief(graph)
-
-
-#print(graph.find_utility_state(graph.get_state(3,3)))
-#print(graph.get_state(3, 0).utility)
-
-
-
-# action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
-# evidence = {'Left': 0.0,'Right': 0.0,'Up': 0.0,'Down': 0.0,'Center': 1.0}
-# graph.update_beliefs(action)
-# # graph.normalize()
-# graph.update_evidence(evidence)
-# graph.normalize()
-# funcs.print_graph_belief(graph)
-#
-# action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
-# evidence = {'Left': 0.0,'Right': 0.0,'Up': 0.0,'Down': 1.0,'Center': 0.0}
-# graph.update_beliefs(action)
-# #graph.normalize()
-# graph.update_evidence(evidence)
-# graph.normalize()
-# funcs.print_graph_belief(graph)
-#
-# action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
-# evidence = {'Left': 1.0,'Right': 0.0,'Up': 0.0,'Down': 0.0,'Center': 0.0}
-# graph.update_beliefs(action)
-# #graph.normalize()
-# graph.update_evidence(evidence)
-# graph.normalize()
-# funcs.print_graph_belief(graph)
-#
-# action = {'Left': False, 'Right': False, 'Up': False, 'Down': True}
-# evidence = {'Left': 1.0,'Right': 1.0,'Up': 0.0,'Down': 0.0,'Center': 0.0}
+# # action = {'Left': True, 'Right': False, 'Up': False, 'Down': False}
+# action = get_max_state().utility[1]
+# evidence = {'Left': 0.0, 'Right': 0.0, 'Up': 0.0,'Down': 0.0, 'Center': 1.0}
 # graph.update_beliefs(action)
 # #graph.normalize()
 # graph.update_evidence(evidence)

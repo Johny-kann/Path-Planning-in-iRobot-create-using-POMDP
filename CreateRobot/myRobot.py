@@ -15,11 +15,12 @@ class State:
         self.reward = -0.4
         self.utility = [0.0, 'Stay']
         self.reward_set = False
-#        self.pomdp_utility = ['0.0', 'Stay']
+        self.pomdp_utility = [0.0, 'Stay']
 
     def set_as_destination(self, reward):
         self.reward = reward
-        self.utility = [reward,'Stay']
+        self.utility = [reward, 'Stay']
+        self.pomdp_utility = [reward, 'Stay']
         self.reward_set = True
 
     def set_nearby_states(self, left_state, right_state, top_state, bottom_state):
@@ -42,6 +43,7 @@ class PomdpGraph:
         self.dimension = {'length': length, 'breadth': breadth}
 #        self.states = [0]*length*breadth
         self.states = [State(None, None, None, None) for i in range(0, length*breadth)]
+        self.utilities_pomdp = dict()
 
     def set_states_list(self, states):
         self.states = states
@@ -267,6 +269,12 @@ class PomdpGraph:
 
             return True
 
+    def get_max_state(self):
+        max_belief = max([x.belief for x in self.states])
+        max_state = self.states[[x.belief for x in self.states].index(max_belief)]
+        print(max_state.belief, max_state.pos, max_state.utility)
+        return max_state
+
     def re_graph(self):
         length = self.dimension['length']
         breadth = self.dimension['breadth']
@@ -307,11 +315,46 @@ class PomdpGraph:
         max_action = actions[rewards.index(maximum)]
         return [state.reward + maximum, max_action]
 
+    def find_utility_state_action(self, state, action):
+        '''
+        Computes the utility for a particular state for a certain action
+        :param state:
+        :param action: defines the action 'Left' or 'Right' or 'Center' or 'Stay' or 'Up' or 'Down'
+        :return: utility of that action
+        '''
+        nearby_states = [state.left_state, state.right_state, state.top_state, state.bottom_state, state]
+        refined_states = [x for x in nearby_states if x is not None]
+        reward = sum([self.find_transition_state(action, x, state)*x.pomdp_utility[0] for x in refined_states])
+        return state.reward + reward
+
     def find_utility_MDP(self):
-        utilities_new = [[state.pos['x'], state.pos['y'], self.find_utility_state(state)] for state in self.states if state is not None and state.reward_set is False]
+        utilities_new = [[state.pos['x'], state.pos['y'], self.find_utility_state(state)] for state in self.states if state is not None and state.reward_set is False and state.block is False]
 
         for i in utilities_new:
             self.get_state(i[0], i[1]).utility = i[2]
+
+    def find_utility_POMDP(self):
+        utilities_new = {'Left': [[state.pos['x'], state.pos['y'], self.find_utility_state_action(state,'Left')] for state in self.states if state is not None and state.reward_set is False and state.block is False],
+                         'Right': [[state.pos['x'], state.pos['y'], self.find_utility_state_action(state,'Right')] for state in self.states if state is not None and state.reward_set is False and state.block is False],
+                         'Up': [[state.pos['x'], state.pos['y'], self.find_utility_state_action(state,'Up')] for state in self.states if state is not None and state.reward_set is False and state.block is False],
+                         'Down': [[state.pos['x'], state.pos['y'], self.find_utility_state_action(state,'Down')] for state in self.states if state is not None and state.reward_set is False and state.block is False],
+                         'Stay': [[state.pos['x'], state.pos['y'], self.find_utility_state_action(state,'Stay')] for state in self.states if state is not None and state.reward_set is False and state.block is False]}
+
+        for i in range(len(utilities_new['Left'])):
+            value = [utilities_new['Left'][i][2], utilities_new['Right'][i][2], utilities_new['Up'][i][2], utilities_new['Down'][i][2], utilities_new['Stay'][i][2]]
+            index = value.index(max(value))
+            if index is 0:
+                self.get_state(utilities_new['Left'][i][0], utilities_new['Left'][i][1]).pomdp_utility = [value[index], 'Left']
+            elif index is 1:
+                self.get_state(utilities_new['Right'][i][0], utilities_new['Right'][i][1]).pomdp_utility = [value[index], 'Right']
+            elif index is 2:
+                self.get_state(utilities_new['Up'][i][0], utilities_new['Up'][i][1]).pomdp_utility = [value[index], 'Up']
+            elif index is 3:
+                self.get_state(utilities_new['Down'][i][0], utilities_new['Down'][i][1]).pomdp_utility = [value[index], 'Down']
+            elif index is 4:
+                self.get_state(utilities_new['Stay'][i][0], utilities_new['Stay'][i][1]).pomdp_utility = [value, 'Stay']
+
+        self.utilities_pomdp = utilities_new
 
     def find_min_distance(self, utility_new, utility_old):
         if len(utility_new) != len(utility_old):
@@ -327,6 +370,23 @@ class PomdpGraph:
             utility_new = [x.utility[0] for x in self.states if x.reward_set is False and x.block is False]
             error = self.find_min_distance(utility_new, utility_old)
             print(error)
+
+    def find_optimal_pomdp(self):
+        error = 100
+        while error > 5:
+            utility_old = [x.pomdp_utility[0] for x in self.states if x.reward_set is False and x.block is False]
+            self.find_utility_POMDP()
+            utility_new = [x.pomdp_utility[0] for x in self.states if x.reward_set is False and x.block is False]
+            error = self.find_min_distance(utility_new, utility_old)
+            print(error)
+            # # for i in range(len(utility_old)):
+            # utility_new = [max([self.utilities_pomdp['Left'][i][2],
+            #                     self.utilities_pomdp['Right'][i][2],
+            #                     self.utilities_pomdp['Up'][i][2],
+            #                     self.utilities_pomdp['Down'][i][2],
+            #                     self.utilities_pomdp['Stay'][i][2]]) for i in range(len(utility_old))]
+            #
+
 
 class Robot:
     """
