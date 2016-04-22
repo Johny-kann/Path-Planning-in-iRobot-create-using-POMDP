@@ -15,6 +15,7 @@ class State:
         self.reward = -0.4
         self.utility = [0.0, 'Stay']
         self.reward_set = False
+#        self.pomdp_utility = ['0.0', 'Stay']
 
     def set_as_destination(self, reward):
         self.reward = reward
@@ -204,15 +205,33 @@ class PomdpGraph:
         Updates the beliefs of the states based on the action given
         :param action: is dictionary of sample {'Left':true,'Right':false, 'Up':false,'Down':false} in terms of the POMDP graph
         '''
+        # for i in range(0, len(self.states)):
+        #     if action is 'Left' and self.__left_action_possible(self.states[i]):
+        #         self.states[i].belief += 1*self.states[i].right_state.belief
+        #     elif action is 'Right' and self.__right_action_possible(self.states[i]):
+        #         self.states[i].belief += 1*self.states[i].left_state.belief
+        #     elif action is 'Up' and self.__top_action_possible(self.states[i]):
+        #         self.states[i].belief += 1*self.states[i].bottom_state.belief
+        #     elif action is 'Down' and self.__bottom_action_possible(self.states[i]):
+        #         self.states[i].belief += 1*self.states[i].top_state.belief
+
+        temp_states = [state.belief for state in self.states]
+
         for i in range(0, len(self.states)):
-            if action['Left'] and self.__left_action_possible(self.states[i]):
-                self.states[i].belief += 1*self.states[i].right_state.belief
-            elif action['Right'] and self.__right_action_possible(self.states[i]):
-                self.states[i].belief += 1*self.states[i].left_state.belief
-            elif action['Up'] and self.__top_action_possible(self.states[i]):
-                self.states[i].belief += 1*self.states[i].bottom_state.belief
-            elif action['Down'] and self.__bottom_action_possible(self.states[i]):
-                self.states[i].belief += 1*self.states[i].top_state.belief
+            if action is 'Left' and self.__left_action_possible(self.states[i]):
+                temp_states[i] += 4*self.states[i].right_state.belief
+            elif action is 'Right' and self.__right_action_possible(self.states[i]):
+                temp_states[i] += 4*self.states[i].left_state.belief
+            elif action is 'Up' and self.__top_action_possible(self.states[i]):
+                temp_states[i] += 4*self.states[i].bottom_state.belief
+            elif action is 'Down' and self.__bottom_action_possible(self.states[i]):
+                temp_states[i] += 4*self.states[i].top_state.belief
+            elif action is 'Stay':
+                temp_states[i] *= 4
+
+        for i in range(len(self.states)):
+            self.states[i].belief = temp_states[i]
+        del temp_states
 
     def update_evidence(self, evidence):
         '''
@@ -223,15 +242,15 @@ class PomdpGraph:
         for state in self.states:
             if state.block is False:
                 if state.left_state is None:
-                    state.belief += (evidence['Left'])*1
+                    state.belief += (evidence['Left'])*5
                 if state.right_state is None:
-                    state.belief += (evidence['Right'])*1
+                    state.belief += (evidence['Right'])*5
                 if state.top_state is None:
-                    state.belief += (evidence['Up'])*1
+                    state.belief += (evidence['Up'])*5
                 if state.bottom_state is None:
-                    state.belief += (evidence['Down'])*1
+                    state.belief += (evidence['Down'])*5
                 if state.left_state is not None and state.right_state is not None and state.top_state is not None and state.bottom_state is not None:
-                    state.belief += (evidence['Center']*0.5)*1
+                    state.belief += (evidence['Center']*0.2)*1
 
     def insert(self, x, y, value):
         if x >= self.dimension['x'] or y >= self.dimension['y']:
@@ -336,7 +355,6 @@ class Robot:
                 self.robot.stop()
                 self.bump_right_remedy()
 
-            print(self.analog_sensor, self.digit_sensor, sep='\n')
             time.sleep(0.3)
 
     def robot_stop(self):
