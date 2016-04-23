@@ -222,13 +222,13 @@ class PomdpGraph:
 
         for i in range(0, len(self.states)):
             if action is 'Left' and self.__left_action_possible(self.states[i]):
-                temp_states[i] += 4*self.states[i].right_state.belief
+                temp_states[i] += 40*self.states[i].right_state.belief
             elif action is 'Right' and self.__right_action_possible(self.states[i]):
-                temp_states[i] += 4*self.states[i].left_state.belief
+                temp_states[i] += 40*self.states[i].left_state.belief
             elif action is 'Up' and self.__top_action_possible(self.states[i]):
-                temp_states[i] += 4*self.states[i].bottom_state.belief
+                temp_states[i] += 40*self.states[i].bottom_state.belief
             elif action is 'Down' and self.__bottom_action_possible(self.states[i]):
-                temp_states[i] += 4*self.states[i].top_state.belief
+                temp_states[i] += 40*self.states[i].top_state.belief
             elif action is 'Stay':
                 temp_states[i] *= 4
 
@@ -245,15 +245,15 @@ class PomdpGraph:
         for state in self.states:
             if state.block is False:
                 if state.left_state is None:
-                    state.belief += (evidence['Left'])*5
+                    state.belief += (evidence['Left'])*5*state.belief
                 if state.right_state is None:
-                    state.belief += (evidence['Right'])*5
+                    state.belief += (evidence['Right'])*5*state.belief
                 if state.top_state is None:
-                    state.belief += (evidence['Up'])*5
+                    state.belief += (evidence['Up'])*5*state.belief
                 if state.bottom_state is None:
-                    state.belief += (evidence['Down'])*5
+                    state.belief += (evidence['Down'])*5*state.belief
                 if state.left_state is not None and state.right_state is not None and state.top_state is not None and state.bottom_state is not None:
-                    state.belief += (evidence['Center']*0.2)*1
+                    state.belief += (evidence['Center']*0.2)*0
 
     def insert(self, x, y, value):
         if x >= self.dimension['x'] or y >= self.dimension['y']:
@@ -583,29 +583,29 @@ class Robot:
     def turn_90(self):
         print('Turning 90')
         self.robot.driveDirect(-30, 30)
-        time.sleep(.75)
+        time.sleep(.7)
         self.robot.stop()
 
     def turn_neg90(self):
         print('Turning -90')
         self.robot.driveDirect(30, -30)
-        time.sleep(.75)
+        time.sleep(.7)
         self.robot.stop()
 
     def turn_180(self):
         print('Turning 180')
         self.robot.driveDirect(-30, 30)
-        time.sleep(1.5)
+        time.sleep(1.4)
         self.robot.stop()
 
     def bump_left_remedy(self):
         self.robot.driveDirect(30,-30)
-        time.sleep(.2)
+        time.sleep(.05)
         self.robot.stop()
 
     def bump_right_remedy(self):
         self.robot.driveDirect(-30,30)
-        time.sleep(.2)
+        time.sleep(.05)
         self.robot.stop()
 
     def move_front(self):
